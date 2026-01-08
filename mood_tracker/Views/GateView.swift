@@ -9,11 +9,28 @@ struct GateView: View {
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Mood Tracker")
-                .font(.largeTitle)
-                .bold()
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("Mood Tracker")
+                    .font(.largeTitle)
+                    .bold()
 
+                gateCard
+
+                // Chart section
+                MoodChartView()
+
+                Spacer(minLength: 24)
+            }
+            .padding()
+        }
+        .onAppear { gateManager.refresh() }
+        .onReceive(timer) { now = $0 }
+    }
+
+    @ViewBuilder
+    private var gateCard: some View {
+        VStack(spacing: 14) {
             if gateManager.canStartMeasurement(now: now) {
                 Text("You can log a new measurement.")
                     .font(.headline)
@@ -34,11 +51,11 @@ struct GateView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(true)
             }
-
         }
+        .frame(maxWidth: .infinity)
         .padding()
-        .onAppear { gateManager.refresh() }
-        .onReceive(timer) { now = $0 }
+//        .background(.ultraThinMaterial)
+//        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func formatSeconds(_ s: Int) -> String {
