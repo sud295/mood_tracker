@@ -15,4 +15,5 @@ xcuserdata/
 *.mode2v3
 *.perspectivev3
 
+mood_tracker/Models/QuestionBank.swift
 secrets.plist
