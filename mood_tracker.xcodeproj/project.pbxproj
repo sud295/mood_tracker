@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		35BA842D2F0F955700E81D5A /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 35BA842C2F0F955700E81D5A /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		35BA84182F0F7D2C00E81D5A /* mood_tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mood_tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35BA842C2F0F955700E81D5A /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		35BA840F2F0F7D2C00E81D5A = {
 			isa = PBXGroup;
 			children = (
+				35BA842C2F0F955700E81D5A /* .gitignore */,
 				35BA841A2F0F7D2C00E81D5A /* mood_tracker */,
 				35BA84192F0F7D2C00E81D5A /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35BA842D2F0F955700E81D5A /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

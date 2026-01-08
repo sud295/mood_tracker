@@ -1,0 +1,17 @@
+.DS_Store
+
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+.build/
+
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
