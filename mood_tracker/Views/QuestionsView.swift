@@ -1,25 +1,5 @@
 import SwiftUI
 
-struct Question: Identifiable {
-    enum Kind {
-        case yesNo
-        case scale0to3
-        case socialValence // -1 / 0 / +1
-    }
-
-    let id: String
-    let text: String
-    let kind: Kind
-}
-
-private let questionBank: [Question] = [
-    .init(id: "sugar_past_hour", text: "Did you eat sugar in the past hour?", kind: .scale0to3),
-    .init(id: "caffeine_past_hour", text: "Did you have caffeine in the past hour?", kind: .scale0to3),
-    .init(id: "exercise_past_hour", text: "Did you exercise in the past hour?", kind: .scale0to3),
-    .init(id: "stress_past_hour", text: "How stressful was the past hour?", kind: .scale0to3),
-    .init(id: "social_valence_past_hour", text: "How was your social interaction in the past hour?", kind: .socialValence)
-]
-
 struct QuestionsView: View {
     @Binding var responses: [String: Int]
     var onFinish: () -> Void
@@ -28,11 +8,11 @@ struct QuestionsView: View {
     @State private var index: Int = 0
     @State private var currentValue: Int = 0
 
-    private var q: Question { questionBank[index] }
+    private var q: Question { QuestionBank.all[index] }
 
     var body: some View {
         VStack(spacing: 22) {
-            Text("Question \(index + 1) of \(questionBank.count)")
+            Text("Question \(index + 1) of \(QuestionBank.all.count)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -43,10 +23,12 @@ struct QuestionsView: View {
             answerControl(for: q.kind)
 
             HStack(spacing: 12) {
-                Button("Cancel") { onCancel() }
-                    .buttonStyle(.bordered)
+                Button("Cancel") {
+                    onCancel()
+                }
+                .buttonStyle(.bordered)
 
-                Button(index == questionBank.count - 1 ? "Finish" : "Next") {
+                Button(index == QuestionBank.all.count - 1 ? "Finish" : "Next") {
                     responses[q.id] = currentValue
                     advance()
                 }
@@ -55,7 +37,6 @@ struct QuestionsView: View {
         }
         .padding()
         .onAppear {
-            // initialize currentValue from existing response if returning
             currentValue = responses[q.id] ?? defaultValue(for: q.kind)
         }
     }
@@ -71,37 +52,36 @@ struct QuestionsView: View {
             .pickerStyle(.segmented)
 
         case .scale0to3:
-            VStack(spacing: 12) {
-                Text("\(currentValue)")
-                    .font(.system(size: 44, weight: .bold))
-                    .monospacedDigit()
+            scaleView(range: 0...3, label: "0 = none, 3 = a lot")
 
-                Slider(
-                    value: Binding(
-                        get: { Double(currentValue) },
-                        set: { currentValue = Int($0) }
-                    ),
-                    in: 0...3,
-                    step: 1
-                )
+        case .scale0to5:
+            scaleView(range: 0...5, label: "0 = not at all, 5 = extremely")
+        }
+    }
 
-                Text("0 = none, 3 = a lot")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
+    private func scaleView(range: ClosedRange<Int>, label: String) -> some View {
+        VStack(spacing: 12) {
+            Text("\(currentValue)")
+                .font(.system(size: 44, weight: .bold))
+                .monospacedDigit()
 
-        case .socialValence:
-            Picker("Social", selection: $currentValue) {
-                Text("Negative").tag(-1)
-                Text("Neutral").tag(0)
-                Text("Positive").tag(1)
-            }
-            .pickerStyle(.segmented)
+            Slider(
+                value: Binding(
+                    get: { Double(currentValue) },
+                    set: { currentValue = Int($0) }
+                ),
+                in: Double(range.lowerBound)...Double(range.upperBound),
+                step: 1
+            )
+
+            Text(label)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
         }
     }
 
     private func advance() {
-        if index == questionBank.count - 1 {
+        if index == QuestionBank.all.count - 1 {
             onFinish()
             return
         }
@@ -113,7 +93,7 @@ struct QuestionsView: View {
         switch kind {
         case .yesNo: return 0
         case .scale0to3: return 0
-        case .socialValence: return 0
+        case .scale0to5: return 0
         }
     }
 }
