@@ -4,7 +4,7 @@ import Combine
 @MainActor
 final class GateManager: ObservableObject {
     private let key = "lastCompletedMeasurementAt"
-    private let interval: TimeInterval = 3600 // 1 hour
+    private let interval: TimeInterval = 1800 // 1 hour
 
     @Published private(set) var nextAllowedAt: Date? = nil
 

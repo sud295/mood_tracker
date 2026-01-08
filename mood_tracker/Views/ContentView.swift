@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Combine
 
 enum AppStep {
     case gate
@@ -9,7 +10,14 @@ enum AppStep {
 }
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+
     @StateObject private var gateManager = GateManager()
+
+    @StateObject private var syncManager = SyncManager(
+        apiKey: AppSecrets.ingestApiKey
+    )
+
     @State private var step: AppStep = .gate
 
     // Draft measurement data
@@ -17,44 +25,54 @@ struct ContentView: View {
     @State private var draftResponses: [String: Int] = [:]
 
     var body: some View {
-        switch step {
-        case .gate:
-            GateView(
-                gateManager: gateManager,
-                onStart: {
-                    // reset draft each time user starts
-                    draftMood = 0
-                    draftResponses = [:]
-                    step = .mood
-                }
-            )
+        ZStack {
+            switch step {
+            case .gate:
+                GateView(
+                    gateManager: gateManager,
+                    onStart: {
+                        draftMood = 0
+                        draftResponses = [:]
+                        step = .mood
+                    }
+                )
 
-        case .mood:
-            MoodView(
-                mood: $draftMood,
-                onNext: { step = .questions },
-                onCancel: { step = .gate }
-            )
+            case .mood:
+                MoodView(
+                    mood: $draftMood,
+                    onNext: { step = .questions },
+                    onCancel: { step = .gate }
+                )
 
-        case .questions:
-            QuestionsView(
-                responses: $draftResponses,
-                onFinish: { step = .done },
-                onCancel: { step = .gate }
-            )
+            case .questions:
+                QuestionsView(
+                    responses: $draftResponses,
+                    onFinish: { step = .done },
+                    onCancel: { step = .gate }
+                )
 
-        case .done:
-            DoneView(
-                mood: draftMood,
-                responses: draftResponses,
-                onComplete: { savedAt in
-                    // Reset the 1-hour timer ONLY after we've recorded the measurement
-                    gateManager.markCompleted(at: savedAt)
+            case .done:
+                DoneView(
+                    mood: draftMood,
+                    responses: draftResponses,
+                    onComplete: { savedAt in
+                        // Start the 1-hour cooldown after local save
+                        gateManager.markCompleted(at: savedAt)
+                        step = .gate
 
-                    // Return home
-                    step = .gate
-                }
-            )
+                        // Try syncing in the background (no UI blocking)
+                        Task {
+                            await syncManager.syncPending(modelContext: modelContext)
+                        }
+                    }
+                )
+            }
+        }
+        .onAppear {
+            // Retry any pending syncs on app launch/return
+            Task {
+                await syncManager.syncPending(modelContext: modelContext)
+            }
         }
     }
 }

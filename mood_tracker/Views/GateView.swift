@@ -10,7 +10,7 @@ struct GateView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("mood_tracker")
+            Text("Mood Tracker")
                 .font(.largeTitle)
                 .bold()
 
@@ -35,10 +35,6 @@ struct GateView: View {
                     .disabled(true)
             }
 
-            // Optional debug button:
-            // Button("Reset Gate (Debug)") { gateManager.resetGate() }
-            //     .font(.footnote)
-            //     .foregroundStyle(.secondary)
         }
         .padding()
         .onAppear { gateManager.refresh() }

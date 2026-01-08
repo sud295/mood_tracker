@@ -51,13 +51,11 @@ struct DoneView: View {
             let m = Measurement(createdAt: savedAt, mood: mood, responsesJSON: jsonString)
             modelContext.insert(m)
 
-            // SwiftData usually autosaves, but explicit save is fine
             try modelContext.save()
 
             isSaving = false
             errorText = nil
 
-            // Mark completion after save success
             onComplete(savedAt)
         } catch {
             isSaving = false
